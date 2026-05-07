@@ -1,1 +1,2 @@
-g++ sfml.cpp world.cpp entity.cpp WestBiome.cpp NorthBiome.cpp SouthBiome.cpp EastBiome.cpp  Entity.cpp -o test.exe -I SFML-3.1.0/include -L SFML-3.1.0/lib -lsfml-graphics -lsfml-window -lsfml-system
+g++ main.cpp world.cpp entity.cpp WestBiome.cpp NorthBiome.cpp SouthBiome.cpp EastBiome.cpp  Entity.cpp -o test.exe -I SFML-3.1.0/include -L SFML-3.1.0/lib -lsfml-graphics -lsfml-window -lsfml-system
+ 

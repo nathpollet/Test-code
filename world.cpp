@@ -1,4 +1,5 @@
 #include "world.hpp"
+#include <iostream>
 
 World::World(float tileSize, int chunkSize)
     : tileSize(tileSize), chunkSize(chunkSize)
@@ -8,6 +9,9 @@ World::World(float tileSize, int chunkSize)
     southBiome = new SouthBiome();
     eastBiome = new EastBiome();
     westBiome = new WestBiome();
+    if (!tilesetTexture.loadFromFile("assets/medieval_tilesheet.png")) {
+    std::cerr << "Erreur : impossible de charger le tilesheet." << std::endl;
+}
 }
 
 World::~World() {
@@ -30,20 +34,29 @@ char World::getTileAt(int tx, int ty) const {
         return '.';
     }
 // Mur haut
-if (ty == -1 && tx >= -1 && tx <= chunkSize)
+if (ty== -1 && tx == chunkSize/2)
+    return '.';
+else if (ty == -1 && tx >= -1 && tx <= chunkSize)
     return '#';
 
 // Mur bas
-if (ty == chunkSize && tx >= -1 && tx <= chunkSize)
+if (ty == chunkSize && tx == chunkSize/2)
+    return '.';
+else if (ty == chunkSize && tx >= -1 && tx <= chunkSize)
     return '#';
 
 // Mur gauche
-if (tx == -1 && ty >= -1 && ty <= chunkSize)
+if (tx == -1 && ty == chunkSize/2)
+    return '.';
+else if (tx == -1 && ty >= -1 && ty <= chunkSize)
     return '#';
 
 // Mur droite
-if (tx == chunkSize && ty >= -1 && ty <= chunkSize)
+if (tx == chunkSize && ty == chunkSize/2)
+    return '.';
+else if (tx == chunkSize && ty >= -1 && ty <= chunkSize)
     return '#';
+
 
     // 2. Convertis coordonnées en coordonnées centrées
     // cx = tx - center;
@@ -86,13 +99,23 @@ const Biome* biome = nullptr;
     }
     return biome->generateTile(tx, ty);
 }
+sf::IntRect getTileRect(int col, int row) {
+    const int margin = 32;
+    const int step = 64;
+    const int spriteSize = 64;
+
+    return sf::IntRect(
+        sf::Vector2i(col*margin + col * step, row*margin + row * step),
+        sf::Vector2i(spriteSize, spriteSize)
+    );
+}
 
 void World::draw(sf::RenderWindow& window, sf::Vector2f playerPos) {
     // À implémenter :
     // Boucler sur une zone autour du joueur
     // Pour chaque tile, appeler getTileAt()
     // Dessiner un RectangleShape de tileSize
-    const int drawRadius = 25; // Nombre de tiles à dessiner autour du joueur
+    const int drawRadius = 12; // Nombre de tiles à dessiner autour du joueur
     const int playerTileX = static_cast<int>(playerPos.x / tileSize);
     const int playerTileY = static_cast<int>(playerPos.y / tileSize);
     for (int ty = playerTileY - drawRadius; ty <= playerTileY + drawRadius; ty++) {
@@ -103,9 +126,30 @@ void World::draw(sf::RenderWindow& window, sf::Vector2f playerPos) {
             if (tileType == '#') {
                 tileShape.setFillColor(sf::Color::Black);
             } 
-            else if (tileType == '.') {
-                tileShape.setFillColor(sf::Color::Green);
-            }
+            if (tileType == '.') {
+                sf::Sprite sprite(tilesetTexture);
+
+                sprite.setTextureRect(sf::IntRect(
+                sf::Vector2i(32, 32),
+                sf::Vector2i(96, 96)
+                ));
+
+                sprite.setScale(sf::Vector2f(
+                    static_cast<float>(tileSize) / 64.f,
+                    static_cast<float>(tileSize) / 64.f
+                ));
+
+                sprite.setPosition(sf::Vector2f(
+                    tx * tileSize,
+                    ty * tileSize
+                ));
+    
+            
+                window.draw(sprite);
+                continue;
+                }
+
+        
             else if (tileType == '^') {
                 tileShape.setFillColor(sf::Color::White);
             }
@@ -119,7 +163,59 @@ void World::draw(sf::RenderWindow& window, sf::Vector2f playerPos) {
             else if (tileType == '@') {
                 tileShape.setFillColor(sf::Color::Yellow);
             }
-            window.draw(tileShape);
+            else if (tileType == 'T') {
+                tileShape.setFillColor(sf::Color(34, 139, 34)); // Vert forêt
+            }
+            else if (tileType == 'R') {
+                tileShape.setFillColor(sf::Color(128, 128, 128)); // Gris roche
+            }
+            else if (tileType == '~') {
+                tileShape.setFillColor(sf::Color(0, 191, 255)); // Bleu eau
+            }
+            else if (tileType == 's') {
+                tileShape.setFillColor(sf::Color(230, 210, 120));
+            }
+
+            else if (tileType == 'C') {
+                tileShape.setFillColor(sf::Color(20, 150, 20));
+                
+            }
+
+            else if (tileType == 'r') {
+                tileShape.setFillColor(sf::Color(100, 80, 60));
+            }   
+
+            else if (tileType == 'o') {
+                tileShape.setFillColor(sf::Color(40, 180, 255));
+            }
+
+            else if (tileType == 'A') {
+                tileShape.setFillColor(sf::Color(180, 140, 70));
+            }
+            else if (tileType == 'F') {
+                tileShape.setFillColor(sf::Color(255, 100, 180));
+            }
+
+            else if (tileType == 'H') {
+                tileShape.setFillColor(sf::Color(120, 70, 20));
+            }
+            else if (tileType == 'm') {
+                tileShape.setFillColor(sf::Color(100, 220, 255));
+            }
+
+            else if (tileType == 'L') {
+                tileShape.setFillColor(sf::Color(255, 80, 0));
+            }
+
+            else if (tileType == 'W') {
+                tileShape.setFillColor(sf::Color(90, 90, 90));
+            }
+
+
+
+             window.draw(tileShape);
+}
+           
         }
     }
-}
+

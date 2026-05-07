@@ -58,9 +58,6 @@ if (world.getTileAt(leftTile, topTile) != '#' &&
 
         view.setCenter({nextX + 25.f, nextY + 25.f});
         window.setView(view);
-        playerObject.addItem("wood");
-        playerObject.addItem("stone");
-        int renderDistance = 30; // ajuste (30, 50, etc.)
         int centerX = static_cast<int>(std::floor((playerObject.getX() + 25.f) / TILE_SIZE));
         int centerY = static_cast<int>(std::floor((playerObject.getY() + 25.f) / TILE_SIZE));
     // --- DESSIN DU MONDE ---
@@ -69,7 +66,7 @@ world.draw(window, {playerObject.getX(), playerObject.getY()});
         window.draw(player);
         window.setView(uiView);
         for (int i = 0; i < 4; i++) {
-            sf::RectangleShape slot({50.f, 50.f});
+            sf::RectangleShape slot({45.f, 45.f});
             slot.setPosition({10.f + i * 60.f, 540.f});
             slot.setFillColor(sf::Color(50, 50, 50));
             window.draw(slot);
