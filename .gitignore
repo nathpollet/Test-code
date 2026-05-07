@@ -1,0 +1,30 @@
+# Executables
+*.exe
+*.out
+
+# DLL
+*.dll
+#sfml
+SFML-3.1.0/
+# Build folders
+build/
+bin/
+obj/
+Debug/
+Release/
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# VSCode
+.vscode/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
