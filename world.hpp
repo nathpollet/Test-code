@@ -11,6 +11,10 @@ public:
     World(float tileSize, int chunkSize);
     ~World();
     char getTileAt(int tx, int ty) const;
+    char getGroundTileAt(int tx, int ty) const;
+    char getOverlayTileAt(int tx, int ty) const;
+    bool isWalkableTile(int tx, int ty) const;
+    bool canMoveTo(float x, float y, float width, float height) const;
     void draw(sf::RenderWindow& window, sf::Vector2f playerPos);
     sf::Texture tilesetTexture;
 private:
@@ -23,4 +27,5 @@ private:
     Biome* westBiome;
 
     bool isInsideInitialChunk(int tx, int ty) const;
+    const Biome* getBiomeAt(int tx, int ty) const;
 };

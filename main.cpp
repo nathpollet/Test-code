@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include "entity.hpp"
 #include <cmath>
+#include <iostream>
 #include "world.hpp"
 
 
@@ -13,6 +14,22 @@ int main() {
     sf::Clock clock;
     float speed = 100.0f;
     const float TILE_SIZE = 50.f;
+
+    // taille de la hitbox du joueur
+    const float PLAYER_SIZE = 36.f;
+    const float PLAYER_HALF_SIZE = PLAYER_SIZE / 2.f;
+
+    // premiere frame du chevalier dans la spritesheet
+    const int PLAYER_FRAME_WIDTH = 70;
+    const int PLAYER_FRAME_HEIGHT = 90;
+    const float PLAYER_SCALE = PLAYER_SIZE / static_cast<float>(PLAYER_FRAME_HEIGHT);
+    const float PLAYER_DRAW_WIDTH = PLAYER_FRAME_WIDTH * PLAYER_SCALE;
+    const float PLAYER_DRAW_X_OFFSET = (PLAYER_SIZE - PLAYER_DRAW_WIDTH) / 2.f;
+    sf::Texture playerTexture;
+    bool playerTextureLoaded = playerTexture.loadFromFile("assets/knight.png");
+    if (!playerTextureLoaded) {
+        std::cerr << "Erreur : impossible de charger le sprite du joueur." << std::endl;
+    }
     sf::View uiView(sf::FloatRect({0.f, 0.f}, {800.f, 600.f}));
     while (window.isOpen()) {
         float deltaTime = clock.restart().asSeconds();
@@ -37,33 +54,38 @@ if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) {
     nextX += speed * deltaTime;
 }
 
-float left = nextX;
-float right = nextX + 49.f ;
-float top = nextY;
-float bottom = nextY + 49.f ;
-int leftTile   = static_cast<int>(std::floor(left / TILE_SIZE));
-int rightTile  = static_cast<int>(std::floor(right / TILE_SIZE));
-int topTile    = static_cast<int>(std::floor(top / TILE_SIZE));
-int bottomTile = static_cast<int>(std::floor(bottom / TILE_SIZE));
-if (world.getTileAt(leftTile, topTile) != '#' &&
-    world.getTileAt(rightTile, topTile) != '#' &&
-    world.getTileAt(leftTile, bottomTile) != '#' &&
-    world.getTileAt(rightTile, bottomTile) != '#') {
+// on bouge seulement si la hitbox passe
+if (world.canMoveTo(nextX, nextY, PLAYER_SIZE, PLAYER_SIZE)) {
     playerObject.move(nextX - playerObject.getX(),
                       nextY - playerObject.getY());
 }
-        sf::RectangleShape player({50.f, 50.f});
-        player.setPosition({nextX, nextY});
-        player.setFillColor(sf::Color::Red);
-
-        view.setCenter({nextX + 25.f, nextY + 25.f});
+        view.setCenter({playerObject.getX() + PLAYER_HALF_SIZE, playerObject.getY() + PLAYER_HALF_SIZE});
         window.setView(view);
-        int centerX = static_cast<int>(std::floor((playerObject.getX() + 25.f) / TILE_SIZE));
-        int centerY = static_cast<int>(std::floor((playerObject.getY() + 25.f) / TILE_SIZE));
-    // --- DESSIN DU MONDE ---
+        int centerX = static_cast<int>(std::floor((playerObject.getX() + PLAYER_HALF_SIZE) / TILE_SIZE));
+        int centerY = static_cast<int>(std::floor((playerObject.getY() + PLAYER_HALF_SIZE) / TILE_SIZE));
+    // dessin du monde
 world.draw(window, {playerObject.getX(), playerObject.getY()});
 
-        window.draw(player);
+        // si le png charge, on dessine le chevalier
+        if (playerTextureLoaded) {
+            sf::Sprite player(playerTexture);
+            player.setTextureRect(sf::IntRect(
+                sf::Vector2i(0, 0),
+                sf::Vector2i(PLAYER_FRAME_WIDTH, PLAYER_FRAME_HEIGHT)
+            ));
+            player.setScale(sf::Vector2f(PLAYER_SCALE, PLAYER_SCALE));
+            player.setPosition({
+                playerObject.getX() + PLAYER_DRAW_X_OFFSET,
+                playerObject.getY()
+            });
+            window.draw(player);
+        } else {
+            // sinon on garde le carre rouge pour depanner
+            sf::RectangleShape player({PLAYER_SIZE, PLAYER_SIZE});
+            player.setPosition({playerObject.getX(), playerObject.getY()});
+            player.setFillColor(sf::Color::Red);
+            window.draw(player);
+        }
         window.setView(uiView);
         for (int i = 0; i < 4; i++) {
             sf::RectangleShape slot({45.f, 45.f});

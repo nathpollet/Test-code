@@ -1,28 +1,35 @@
 #include "EastBiome.hpp"
 #include <cmath>
+
 EastBiome::EastBiome() {
-    // Constructeur par défaut
+    // rien a preparer pour l'instant
 }
+
 int pseudoRandomEast(int x, int y) {
-    int n = x*146474451 + y*566746813; // Mélange les coordonnées
-    n = (n ^ (n >> 11)) * 468413125; // Applique une fonction de mélange
+    // petit hasard fixe avec les coordonnees
+    int n = x * 146474451 + y * 566746813;
+    n = (n ^ (n >> 11)) * 468413125;
     return abs(n);
 }
-char EastBiome::generateTile(int tx, int ty) const {
-    int value = pseudoRandomEast(tx, ty)%100;
-  
-    if (value < 70)
-        return '.';   // herbe
 
-    if (value < 85)
-        return 'T';   // arbre
+char EastBiome::getGroundTile() const {
+    return '.';
+}
 
-    if (value < 90)
-        return '~';   // eau
+char EastBiome::generateOverlay(int tx, int ty) const {
+    int value = pseudoRandomEast(tx, ty) % 100;
 
-    if (value < 97)
-        return 'F';   // fleurs / végétation
+    if (value < 87)
+        return '\0';
 
-    return 'H';       // vieille cabane / structure
+    if (value < 94)
+        return 'T';
 
+    if (value < 98)
+        return 'F';
+
+    if (value < 99)
+        return '\0';
+
+    return 'H';
 }
