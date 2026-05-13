@@ -3,9 +3,14 @@
 #include <iostream>
 
 namespace {
-// pas d'objet sur cette case
+/**
+ * Marque "rien du tout" pour les objets poses sur le sol.
+ */
 constexpr char NoOverlay = '\0';
 
+/**
+ * Repere les quatre portes autour du chunk de depart.
+ */
 bool isInitialDoor(int tx, int ty, int chunkSize) {
     // les quatre portes du chunk de depart
     const int middle = chunkSize / 2;
@@ -15,6 +20,9 @@ bool isInitialDoor(int tx, int ty, int chunkSize) {
            (tx == chunkSize && ty == middle);
 }
 
+/**
+ * Repere la case juste apres une porte pour garder un passage bien propre.
+ */
 bool isInitialDoorExit(int tx, int ty, int chunkSize) {
     // juste apres une porte, on garde le chemin clean
     const int middle = chunkSize / 2;
@@ -24,6 +32,9 @@ bool isInitialDoorExit(int tx, int ty, int chunkSize) {
            (tx == chunkSize + 1 && ty == middle);
 }
 
+/**
+ * Dit si une case fait partie du mur qui entoure le chunk de depart.
+ */
 bool isInitialWall(int tx, int ty, int chunkSize) {
     // les murs autour du chunk de depart
     return (ty == -1 && tx >= -1 && tx <= chunkSize) ||
@@ -32,6 +43,9 @@ bool isInitialWall(int tx, int ty, int chunkSize) {
            (tx == chunkSize && ty >= -1 && ty <= chunkSize);
 }
 
+/**
+ * Teste vite fait si deux rectangles se touchent.
+ */
 bool rectanglesOverlap(
     float leftA,
     float topA,
@@ -46,6 +60,9 @@ bool rectanglesOverlap(
     return leftA < rightB && rightA > leftB && topA < bottomB && bottomA > topB;
 }
 
+/**
+ * Dit si un overlay prend toute la case pour les collisions.
+ */
 bool hasFullTileOverlayHitbox(char overlayTile) {
     // les gros batiments bloquent toute la case
     return overlayTile == 'y' ||
@@ -55,6 +72,9 @@ bool hasFullTileOverlayHitbox(char overlayTile) {
            overlayTile == 'W';
 }
 
+/**
+ * Recupere le rectangle d'un sprite dans la tilesheet.
+ */
 sf::IntRect getTileRect(int col, int row) {
     // la tilesheet a des sprites de 64px avec 32px de marge
     const int margin = 32;
@@ -67,6 +87,9 @@ sf::IntRect getTileRect(int col, int row) {
     );
 }
 
+/**
+ * Dessine une tuile precise de la tilesheet a une position de map.
+ */
 void drawTileSprite(sf::RenderWindow& window, const sf::Texture& texture, int col, int row, float tileSize, int tx, int ty) {
     sf::Sprite sprite(texture);
     sprite.setTextureRect(getTileRect(col, row));
@@ -81,6 +104,9 @@ void drawTileSprite(sf::RenderWindow& window, const sf::Texture& texture, int co
     window.draw(sprite);
 }
 
+/**
+ * Dessine le sol avant de poser les objets dessus.
+ */
 void drawGroundTile(sf::RenderWindow& window, const sf::Texture& texture, char tileType, float tileSize, int tx, int ty) {
     // on dessine le sol en premier
     if (tileType == '#') {
@@ -99,6 +125,9 @@ void drawGroundTile(sf::RenderWindow& window, const sf::Texture& texture, char t
     }
 }
 
+/**
+ * Dessine le decor pose au-dessus du sol, si le code de tuile en demande un.
+ */
 void drawOverlayTile(sf::RenderWindow& window, const sf::Texture& texture, char tileType, float tileSize, int tx, int ty) {
     // puis ce qui est pose dessus
     if (tileType == 'T') {
@@ -143,6 +172,9 @@ void drawOverlayTile(sf::RenderWindow& window, const sf::Texture& texture, char 
 }
 }
 
+/**
+ * Cree le monde, installe les biomes et charge la tilesheet.
+ */
 World::World(float tileSize, int chunkSize)
     : tileSize(tileSize), chunkSize(chunkSize)
 {
@@ -156,6 +188,9 @@ World::World(float tileSize, int chunkSize)
     }
 }
 
+/**
+ * Libere les biomes crees avec new.
+ */
 World::~World() {
     delete northBiome;
     delete southBiome;
@@ -163,10 +198,16 @@ World::~World() {
     delete westBiome;
 }
 
+/**
+ * Dit si la case est dans le chunk de depart.
+ */
 bool World::isInsideInitialChunk(int tx, int ty) const {
     return tx >= 0 && tx < chunkSize && ty >= 0 && ty < chunkSize;
 }
 
+/**
+ * Choisit le biome selon la direction depuis le centre du monde.
+ */
 const Biome* World::getBiomeAt(int tx, int ty) const {
     // on choisit le biome selon la direction depuis le centre
     const int cx = tx - center;
@@ -185,6 +226,9 @@ const Biome* World::getBiomeAt(int tx, int ty) const {
     return northBiome;
 }
 
+/**
+ * Renvoie uniquement le sol: depart, murs, chemins diagonaux ou sol de biome.
+ */
 char World::getGroundTileAt(int tx, int ty) const {
     // ici on ne renvoie que le sol
     if (isInsideInitialChunk(tx, ty) || isInitialDoor(tx, ty, chunkSize)) {
@@ -205,6 +249,9 @@ char World::getGroundTileAt(int tx, int ty) const {
     return getBiomeAt(tx, ty)->getGroundTile();
 }
 
+/**
+ * Renvoie le decor de la case, en evitant les murs, le depart et les sorties.
+ */
 char World::getOverlayTileAt(int tx, int ty) const {
     // ici on regarde si un objet doit etre pose sur le sol
     const char groundTile = getGroundTileAt(tx, ty);
@@ -229,10 +276,16 @@ char World::getOverlayTileAt(int tx, int ty) const {
     return overlayTile;
 }
 
+/**
+ * Dit si une case est libre: pas de mur et pas d'objet dessus.
+ */
 bool World::isWalkableTile(int tx, int ty) const {
     return getGroundTileAt(tx, ty) != '#' && getOverlayTileAt(tx, ty) == NoOverlay;
 }
 
+/**
+ * Verifie si une hitbox peut bouger a cet endroit sans taper dans un obstacle.
+ */
 bool World::canMoveTo(float x, float y, float width, float height) const {
     // collision precise du joueur contre les murs et objets
     const float playerLeft = x;
@@ -276,6 +329,9 @@ bool World::canMoveTo(float x, float y, float width, float height) const {
     return true;
 }
 
+/**
+ * Renvoie la tuile visible finale: mur, overlay, ou sol.
+ */
 char World::getTileAt(int tx, int ty) const {
     const char groundTile = getGroundTileAt(tx, ty);
     if (groundTile == '#') {
@@ -290,6 +346,9 @@ char World::getTileAt(int tx, int ty) const {
     return groundTile;
 }
 
+/**
+ * Dessine seulement les tuiles proches du joueur pour garder le rendu leger.
+ */
 void World::draw(sf::RenderWindow& window, sf::Vector2f playerPos) {
     // on ne dessine que les tiles autour du joueur
     const int drawRadius = 12;
