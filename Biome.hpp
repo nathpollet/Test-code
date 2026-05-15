@@ -28,9 +28,19 @@ public:
  */
 class NorthBiome : public Biome {
 public:
+    /**
+     * Cree le biome du nord.
+     */
     NorthBiome();
 
+    /**
+     * Renvoie la tuile de sol du nord.
+     */
     char getGroundTile() const override;
+
+    /**
+     * Genere les decors propres au nord a une position donnee.
+     */
     char generateOverlay(int tx, int ty) const override;
 };
 
@@ -39,9 +49,19 @@ public:
  */
 class SouthBiome : public Biome {
 public:
+    /**
+     * Cree le biome du sud.
+     */
     SouthBiome();
 
+    /**
+     * Renvoie la tuile de sol du sud.
+     */
     char getGroundTile() const override;
+
+    /**
+     * Genere les decors propres au sud a une position donnee.
+     */
     char generateOverlay(int tx, int ty) const override;
 };
 
@@ -50,9 +70,19 @@ public:
  */
 class EastBiome : public Biome {
 public:
+    /**
+     * Cree le biome de l'est.
+     */
     EastBiome();
 
+    /**
+     * Renvoie la tuile de sol de l'est.
+     */
     char getGroundTile() const override;
+
+    /**
+     * Genere les decors propres a l'est a une position donnee.
+     */
     char generateOverlay(int tx, int ty) const override;
 };
 
@@ -61,8 +91,18 @@ public:
  */
 class WestBiome : public Biome {
 public:
+    /**
+     * Cree le biome de l'ouest.
+     */
     WestBiome();
 
+    /**
+     * Renvoie la tuile de sol de l'ouest.
+     */
     char getGroundTile() const override;
+
+    /**
+     * Genere les decors propres a l'ouest a une position donnee.
+     */
     char generateOverlay(int tx, int ty) const override;
 };
